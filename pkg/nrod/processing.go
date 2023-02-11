@@ -41,29 +41,52 @@ func processMessageGzip(ctx *Ctx, subscription *stomp.Subscription, subscription
 	if err != nil {
 		ctx.Log.DPanicf("could not parse", err)
 	}
-	for _, node := range xmlquery.Find(doc, "//Pport/uR/TS") {
-		locations := node.SelectElements("ns5:Location")
-		for _, location := range locations {
-			x := fmt.Sprintf("%v", location.OutputXML(true))
-			ctx.Log.Infof("%v", x)
+	proceessSchedule(ctx, doc)
+	proccessLocations(ctx, doc)
+}
+
+func proceessSchedule(ctx *Ctx, doc *xmlquery.Node) {
+	for _, node := range xmlquery.Find(doc, "//Pport/uR/schedule") {
+		rid := node.SelectAttr("rid")         // darwin unique id
+		uid := node.SelectAttr("uid")         // schedule unique id
+		trainId := node.SelectAttr("trainId") // the train id
+		ssd := node.SelectAttr("ssd")         // day when train starts
+		toc := node.SelectAttr("toc")         // company running the train
+		for _, pt := range []string{"OR", "OPOR", "PP", "IP", "OPIP", "DT", "OPDT"} {
+			prosessSchedulePoint(ctx, node, pt, rid, uid, trainId, ssd, toc)
 		}
 	}
+}
 
-	for _, node := range xmlquery.Find(doc, "//Pport/uR/schedule") {
-		ors := node.SelectElements("ns2:OR")
-		for _, or := range ors {
-			x := fmt.Sprintf("%v", or.OutputXML(true))
-			ctx.Log.Debugf("Schedule OR: %v", x)
+func proccessLocations(ctx *Ctx, doc *xmlquery.Node) {
+	for _, node := range xmlquery.Find(doc, "//Pport/uR/TS") {
+		locations := node.SelectElements("ns5:Location")
+		rid := node.SelectAttr("rid") // darwin unique id
+		uid := node.SelectAttr("uid") // schedule unique id
+		ssd := node.SelectAttr("ssd") // day when train starts
+		for _, location := range locations {
+			tpl := location.SelectAttr("tpl") // timing point location
+			pta := location.SelectAttr("pta") // public timetable arraival
+			ptd := location.SelectAttr("ptd") // public timetable departure
+			wta := location.SelectAttr("wta") // working timetable arraival
+			wtd := location.SelectAttr("wtd") // working timetable departure
+			wtp := location.SelectAttr("wtp") // working timetable pass
+			ctx.Log.Infof("ts,%v,%v,%v,%v,%v,%v,%v,%v,%v", rid, uid, ssd, tpl, pta, ptd, wta, wtd, wtp)
 		}
-		ips := node.SelectElements("ns2:IP")
-		for _, x := range ips {
-			x := fmt.Sprintf("%v", x.OutputXML(true))
-			ctx.Log.Debugf("Schedule IP: %v", x)
-		}
-		dts := node.SelectElements("ns2:DT")
-		for _, x := range dts {
-			x := fmt.Sprintf("%v", x.OutputXML(true))
-			ctx.Log.Debugf("Schedule DT: %v", x)
-		}
+	}
+}
+
+func prosessSchedulePoint(ctx *Ctx, node *xmlquery.Node, schedulePointType string, rid string, uid string, trainId string, ssd string, toc string) {
+	opdts := node.SelectElements(fmt.Sprintf("ns2:%v", schedulePointType))
+	for _, x := range opdts {
+		tpl := x.SelectAttr("tpl") // timing point location
+		pta := x.SelectAttr("pta") // public timetable arraival
+		ptd := x.SelectAttr("ptd") // public timetable departure
+		wta := x.SelectAttr("wta") // working timetable arraival
+		wtd := x.SelectAttr("wtd") // working timetable departure
+		wtp := x.SelectAttr("wtp") // working timetable pass
+		act := x.SelectAttr("act") // ???
+		ctx.Log.Infof("s,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v", rid, uid, ssd, tpl, pta, ptd, wta, wtd, wtp, act, schedulePointType, trainId, toc)
+
 	}
 }
