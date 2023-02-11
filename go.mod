@@ -3,13 +3,18 @@ module github.com/michaelraskansky/nationalrail_to_kinesis
 go 1.20
 
 require (
+	github.com/antchfx/xmlquery v1.3.15
 	github.com/spf13/cobra v1.6.1
 	go.uber.org/zap v1.24.0
 )
 
 require (
+	github.com/antchfx/xpath v1.2.3 // indirect
+	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/stretchr/testify v1.8.1 // indirect
+	golang.org/x/net v0.5.0 // indirect
+	golang.org/x/text v0.6.0 // indirect
 )
 
 require (

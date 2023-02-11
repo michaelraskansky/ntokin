@@ -3,9 +3,10 @@ package nrod
 import (
 	"bytes"
 	"compress/gzip"
+	"fmt"
+
+	"github.com/antchfx/xmlquery"
 	"github.com/go-stomp/stomp/v3"
-	messageTypes "github.com/michaelraskansky/nationalrail_to_kinesis/pkg/nrod/messages"
-	"io/ioutil"
 )
 
 func processMessages(ctx *Ctx, subscription *stomp.Subscription) error {
@@ -35,21 +36,34 @@ func processMessageGzip(ctx *Ctx, subscription *stomp.Subscription, subscription
 	if err != nil {
 		ctx.Log.Panicf("could not read %v", err)
 	}
-	reader.Close()
-	s, err := ioutil.ReadAll(reader)
+	defer reader.Close()
+	doc, err := xmlquery.Parse(reader)
 	if err != nil {
-		ctx.Log.Panicf("could not read %v", err)
+		ctx.Log.DPanicf("could not parse", err)
 	}
-	xml := string(s)
-	ctx.Log.Debugf("%v", xml)
-}
+	for _, node := range xmlquery.Find(doc, "//Pport/uR/TS") {
+		locations := node.SelectElements("ns5:Location")
+		for _, location := range locations {
+			x := fmt.Sprintf("%v", location.OutputXML(true))
+			ctx.Log.Infof("%v", x)
+		}
+	}
 
-func processMessage(ctx *Ctx, subscription *stomp.Subscription, subscriptionMessage *stomp.Message) {
-	messages := messageTypes.Detect(subscriptionMessage.Body)
-	for _, message := range messages {
-		output := message.ToString()
-		if output != "" {
-			ctx.Log.Infof("[%v] %v", subscription.Id(), output)
+	for _, node := range xmlquery.Find(doc, "//Pport/uR/schedule") {
+		ors := node.SelectElements("ns2:OR")
+		for _, or := range ors {
+			x := fmt.Sprintf("%v", or.OutputXML(true))
+			ctx.Log.Debugf("Schedule OR: %v", x)
+		}
+		ips := node.SelectElements("ns2:IP")
+		for _, x := range ips {
+			x := fmt.Sprintf("%v", x.OutputXML(true))
+			ctx.Log.Debugf("Schedule IP: %v", x)
+		}
+		dts := node.SelectElements("ns2:DT")
+		for _, x := range dts {
+			x := fmt.Sprintf("%v", x.OutputXML(true))
+			ctx.Log.Debugf("Schedule DT: %v", x)
 		}
 	}
 }
