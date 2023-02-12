@@ -25,4 +25,7 @@ build:
 
 .PHONY: serve
 serve:
-	./tolkinctl serve --username $(USERNAME) --password $(PASSWORD) --subscriptions darwin.pushport-v16 
+	./tolkinctl serve --username $(USERNAME) \
+	--password $(PASSWORD) \
+	--subscriptions darwin.pushport-v16 \
+	--kinesis-stream-arn $(STREAM_ARN)

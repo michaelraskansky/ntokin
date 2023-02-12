@@ -4,7 +4,6 @@ import "github.com/michaelraskansky/nationalrail_to_kinesis/pkg/dts"
 
 func Start(ctx *dts.Ctx) {
 	cleanUpOnInterrupt(ctx)
-
 	connectionError := connect(ctx)
 	defer connection.Disconnect()
 	if connectionError != nil {

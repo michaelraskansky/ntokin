@@ -1,23 +1,32 @@
 package nrod
 
 import (
-	"github.com/michaelraskansky/nationalrail_to_kinesis/pkg/dts"
 	"os"
 	"os/signal"
+
+	"github.com/michaelraskansky/nationalrail_to_kinesis/pkg/dts"
 )
 
 func cleanUpOnInterrupt(ctx *dts.Ctx) {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
-
 	go func() {
-		for range c {
-			ctx.Log.Infof("Cleaning-up...")
-			cleanUp(ctx)
-			ctx.Log.Infof("Cleaned-up; exiting.")
-			os.Exit(1)
+		select {
+		case <-ctx.KillSignal:
+			cleanUpAndExit(ctx)
+		case <-c:
+			cleanUpAndExit(ctx)
+		case <-ctx.Context.Done():
+			cleanUpAndExit(ctx)
 		}
 	}()
+}
+
+func cleanUpAndExit(ctx *dts.Ctx) {
+	ctx.Log.Infof("Cleaning-up...")
+	cleanUp(ctx)
+	ctx.Log.Infof("Cleaned-up; exiting.")
+	os.Exit(1)
 }
 
 func cleanUp(ctx *dts.Ctx) {

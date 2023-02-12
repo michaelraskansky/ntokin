@@ -61,6 +61,7 @@ func proceessSchedule(ctx *dts.Ctx, doc *xmlquery.Node) {
 }
 
 func proccessLocations(ctx *dts.Ctx, doc *xmlquery.Node) {
+	var recs [][]byte
 	for _, node := range xmlquery.Find(doc, "//Pport/uR/TS") {
 		locations := node.SelectElements("ns5:Location")
 		rid := node.SelectAttr("rid") // darwin unique id
@@ -73,12 +74,16 @@ func proccessLocations(ctx *dts.Ctx, doc *xmlquery.Node) {
 			wta := location.SelectAttr("wta") // working timetable arraival
 			wtd := location.SelectAttr("wtd") // working timetable departure
 			wtp := location.SelectAttr("wtp") // working timetable pass
-			ctx.Log.Infof("ts,%v,%v,%v,%v,%v,%v,%v,%v,%v", rid, uid, ssd, tpl, pta, ptd, wta, wtd, wtp)
+			rec := fmt.Sprintf("ts,%v,%v,%v,%v,%v,%v,%v,%v,%v", rid, uid, ssd, tpl, pta, ptd, wta, wtd, wtp)
+			ctx.Log.Debugf(rec)
+			recs = append(recs, []byte(rec))
 		}
 	}
+	ctx.InjestChan <- &dts.ShardRecord{Shard: "locations", Records: &recs}
 }
 
 func prosessSchedulePoint(ctx *dts.Ctx, node *xmlquery.Node, schedulePointType string, rid string, uid string, trainId string, ssd string, toc string) {
+	var recs [][]byte
 	opdts := node.SelectElements(fmt.Sprintf("ns2:%v", schedulePointType))
 	for _, x := range opdts {
 		tpl := x.SelectAttr("tpl") // timing point location
@@ -88,7 +93,10 @@ func prosessSchedulePoint(ctx *dts.Ctx, node *xmlquery.Node, schedulePointType s
 		wtd := x.SelectAttr("wtd") // working timetable departure
 		wtp := x.SelectAttr("wtp") // working timetable pass
 		act := x.SelectAttr("act") // ???
-		ctx.Log.Infof("s,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v", rid, uid, ssd, tpl, pta, ptd, wta, wtd, wtp, act, schedulePointType, trainId, toc)
-
+		rec := fmt.Sprintf("s,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v", rid, uid, ssd, tpl, pta, ptd, wta, wtd, wtp, act, schedulePointType, trainId, toc)
+		ctx.Log.Debug(rec)
+		recs = append(recs, []byte(rec))
 	}
+	ctx.InjestChan <- &dts.ShardRecord{Shard: "schedule", Records: &recs}
+
 }
