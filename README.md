@@ -1,1 +1,2 @@
-# Simnple App to injest UK Rail Info
+# Description 
+Simnple app to ingest UK rail info to AWS Kinesis
