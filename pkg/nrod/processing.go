@@ -6,10 +6,20 @@ import (
 	"fmt"
 
 	"github.com/antchfx/xmlquery"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/kinesis"
 	"github.com/go-stomp/stomp/v3"
+	"github.com/michaelraskansky/nationalrail_to_kinesis/pkg/dts"
 )
 
-func processMessages(ctx *Ctx, subscription *stomp.Subscription) error {
+func newKinesisClient() *kinesis.Kinesis {
+	mySession := session.Must(session.NewSession())
+	svc := kinesis.New(mySession, aws.NewConfig().WithRegion("eu-west-1"))
+	return svc
+}
+
+func processMessages(ctx *dts.Ctx, subscription *stomp.Subscription) error {
 	message, messageError := getMessage(subscription)
 	if messageError != nil {
 		return messageError
@@ -31,7 +41,7 @@ func getMessage(subscription *stomp.Subscription) (*stomp.Message, error) {
 	}
 }
 
-func processMessageGzip(ctx *Ctx, subscription *stomp.Subscription, subscriptionMessage *stomp.Message) {
+func processMessageGzip(ctx *dts.Ctx, subscription *stomp.Subscription, subscriptionMessage *stomp.Message) {
 	reader, err := gzip.NewReader(bytes.NewReader(subscriptionMessage.Body))
 	if err != nil {
 		ctx.Log.Panicf("could not read %v", err)
@@ -41,11 +51,12 @@ func processMessageGzip(ctx *Ctx, subscription *stomp.Subscription, subscription
 	if err != nil {
 		ctx.Log.DPanicf("could not parse", err)
 	}
+
 	proceessSchedule(ctx, doc)
 	proccessLocations(ctx, doc)
 }
 
-func proceessSchedule(ctx *Ctx, doc *xmlquery.Node) {
+func proceessSchedule(ctx *dts.Ctx, doc *xmlquery.Node) {
 	for _, node := range xmlquery.Find(doc, "//Pport/uR/schedule") {
 		rid := node.SelectAttr("rid")         // darwin unique id
 		uid := node.SelectAttr("uid")         // schedule unique id
@@ -58,7 +69,7 @@ func proceessSchedule(ctx *Ctx, doc *xmlquery.Node) {
 	}
 }
 
-func proccessLocations(ctx *Ctx, doc *xmlquery.Node) {
+func proccessLocations(ctx *dts.Ctx, doc *xmlquery.Node) {
 	for _, node := range xmlquery.Find(doc, "//Pport/uR/TS") {
 		locations := node.SelectElements("ns5:Location")
 		rid := node.SelectAttr("rid") // darwin unique id
@@ -76,7 +87,7 @@ func proccessLocations(ctx *Ctx, doc *xmlquery.Node) {
 	}
 }
 
-func prosessSchedulePoint(ctx *Ctx, node *xmlquery.Node, schedulePointType string, rid string, uid string, trainId string, ssd string, toc string) {
+func prosessSchedulePoint(ctx *dts.Ctx, node *xmlquery.Node, schedulePointType string, rid string, uid string, trainId string, ssd string, toc string) {
 	opdts := node.SelectElements(fmt.Sprintf("ns2:%v", schedulePointType))
 	for _, x := range opdts {
 		tpl := x.SelectAttr("tpl") // timing point location

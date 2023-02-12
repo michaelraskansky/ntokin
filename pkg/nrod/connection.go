@@ -2,6 +2,7 @@ package nrod
 
 import (
 	"fmt"
+	"github.com/michaelraskansky/nationalrail_to_kinesis/pkg/dts"
 	"net"
 	"time"
 
@@ -12,7 +13,7 @@ const STOMP_SERVER_TIMEOUT = 10 * time.Second
 
 var connection *stomp.Conn
 
-func connect(ctx *Ctx) error {
+func connect(ctx *dts.Ctx) error {
 	stompServer := fmt.Sprintf("%v:%v", ctx.Host, ctx.Port)
 	ctx.Log.Infof("Connecting: stomp://%v ...\n", stompServer)
 	networkConnection, networkConnectionError := net.DialTimeout("tcp", stompServer, STOMP_SERVER_TIMEOUT)

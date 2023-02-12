@@ -1,4 +1,4 @@
-package nrod
+package dts
 
 import (
 	"github.com/go-stomp/stomp/v3"

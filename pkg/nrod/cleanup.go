@@ -1,11 +1,12 @@
 package nrod
 
 import (
+	"github.com/michaelraskansky/nationalrail_to_kinesis/pkg/dts"
 	"os"
 	"os/signal"
 )
 
-func cleanUpOnInterrupt(ctx *Ctx) {
+func cleanUpOnInterrupt(ctx *dts.Ctx) {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 
@@ -19,7 +20,7 @@ func cleanUpOnInterrupt(ctx *Ctx) {
 	}()
 }
 
-func cleanUp(ctx *Ctx) {
+func cleanUp(ctx *dts.Ctx) {
 	for subscriptionName, subscription := range subscriptions {
 		if subscription != nil {
 			ctx.Log.Infof("Unsubscribing from subscription %s...", subscriptionName)

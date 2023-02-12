@@ -1,6 +1,8 @@
 package nrod
 
-func Start(ctx *Ctx) {
+import "github.com/michaelraskansky/nationalrail_to_kinesis/pkg/dts"
+
+func Start(ctx *dts.Ctx) {
 	cleanUpOnInterrupt(ctx)
 
 	connectionError := connect(ctx)
@@ -23,7 +25,7 @@ func Start(ctx *Ctx) {
 	}
 }
 
-func workSubscription(ctx *Ctx, subscriptionName string) {
+func workSubscription(ctx *dts.Ctx, subscriptionName string) {
 	subscription, subscriptionError := subscribe(subscriptionName)
 
 	if subscriptionError != nil {
