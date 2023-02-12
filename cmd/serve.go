@@ -9,6 +9,7 @@ import (
 	"github.com/michaelraskansky/ntokin/pkg/health"
 	"github.com/michaelraskansky/ntokin/pkg/kinesis"
 	"github.com/michaelraskansky/ntokin/pkg/nrod"
+	"os"
 
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -71,11 +72,11 @@ var kinesisTestCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(kinesisTestCmd)
 	rootCmd.AddCommand(serveCmd)
+	serveCmd.Flags().String("username", os.Getenv("NTOKIN_USERNAME"), "Username")
+	serveCmd.Flags().String("password", os.Getenv("NTOKIN_PASSWORD"), "Password")
+	serveCmd.Flags().String("kinesis-stream-arn", os.Getenv("NTOKIN_STREAM_ARN"), "the stream arn")
 	serveCmd.Flags().String("host", "darwin-dist-44ae45.nationalrail.co.uk", "Hostname")
-	serveCmd.Flags().String("username", "", "Username")
-	serveCmd.Flags().String("password", "", "Password")
 	serveCmd.Flags().String("port", "61613", "STOMP Port")
-	serveCmd.Flags().String("kinesis-stream-arn", "", "the stream arn")
 	serveCmd.Flags().String("kinesis-region", "eu-west-1", "the stream region")
 	serveCmd.Flags().Int32("healthcheck-port", 8080, "the stream region")
 	serveCmd.Flags().StringArray("subscriptions", []string{
