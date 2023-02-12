@@ -1,11 +1,12 @@
 /*
-Copyright © 2023 NAME HERE <EMAIL ADDRESS>
+Copyright © 2023 Michael Raskansky michaelraskansky@gmail.com
 */
 package cmd
 
 import (
 	"github.com/go-stomp/stomp/v3"
 	"github.com/michaelraskansky/nationalrail_to_kinesis/pkg/dts"
+	"github.com/michaelraskansky/nationalrail_to_kinesis/pkg/kinesis"
 	"github.com/michaelraskansky/nationalrail_to_kinesis/pkg/nrod"
 
 	"github.com/spf13/cobra"
@@ -43,12 +44,26 @@ var serveCmd = &cobra.Command{
 	},
 }
 
+var kinesisTestCmd = &cobra.Command{
+	Use:   "test",
+	Short: "test kinesis connect",
+	Long:  `test kinesis connect`,
+	Run: func(cmd *cobra.Command, args []string) {
+		logger, _ := zap.NewProduction()
+		kinesis.Test(&dts.Ctx{
+			Log: logger.Sugar(),
+		})
+	},
+}
+
 func init() {
+	rootCmd.AddCommand(kinesisTestCmd)
 	rootCmd.AddCommand(serveCmd)
 	serveCmd.Flags().String("host", "darwin-dist-44ae45.nationalrail.co.uk", "Hostname")
 	serveCmd.Flags().String("username", "", "Username")
 	serveCmd.Flags().String("password", "", "Password")
 	serveCmd.Flags().String("port", "61613", "STOMP Port")
+	serveCmd.Flags().String("kinesis-stream-arn", "", "the stream arn")
 	serveCmd.Flags().StringArray("subscriptions", []string{
 		"darwin.pushport-v16",
 	}, "subscriptions")
