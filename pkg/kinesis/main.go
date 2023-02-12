@@ -50,9 +50,9 @@ func injestLoop(kc *KinesisSync, ctx *dts.Ctx) {
 			ctx.Log.Infof("killing injest loop")
 			ctx.Stop()
 		case shardArray := <-ctx.InjestChan:
+			ctx.Log.Debugf("injest data to %v", shardArray.Shard)
 			var records []*kinesis.PutRecordsRequestEntry
 			for _, bytearray := range *shardArray.Records {
-				ctx.Log.Infof("injest %v", bytearray)
 				records = append(records, &kinesis.PutRecordsRequestEntry{
 					Data:         bytearray,
 					PartitionKey: &shardArray.Shard,

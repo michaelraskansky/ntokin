@@ -1,6 +1,6 @@
 GOCMD=$(or $(shell which go), $(error "Missing dependency - no go in PATH"))
 GOBUILD=$(GOCMD) build
-CGCTL_BINARY_NAME=tolkinctl
+CGCTL_BINARY_NAME=ntokinctl
 VERSION=$(shell git branch --no-color --no-column --show-current)
 
 # This cannot detect whether untracked files have yet to be added.
@@ -25,7 +25,7 @@ build:
 
 .PHONY: serve
 serve:
-	./tolkinctl serve --username $(USERNAME) \
+	./$(CGCTL_BINARY_NAME) serve --username $(USERNAME) \
 	--password $(PASSWORD) \
 	--subscriptions darwin.pushport-v16 \
 	--kinesis-stream-arn $(STREAM_ARN)
