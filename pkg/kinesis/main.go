@@ -58,12 +58,14 @@ func injestLoop(kc *KinesisSync, ctx *dts.Ctx) {
 					PartitionKey: &shardArray.Shard,
 				})
 			}
-			_, err := kc.Client.PutRecords(&kinesis.PutRecordsInput{
+			pri := &kinesis.PutRecordsInput{
 				StreamARN: &kc.StreamARN,
 				Records:   records,
-			})
+			}
+			_, err := kc.Client.PutRecords(pri)
 			if err != nil {
-				ctx.Log.Infof("could not send to kinesis %v", err)
+				ctx.Log.Errorf("could not send to kinesis %v", pri)
+				ctx.Log.Errorf("could not send to kinesis %v", err)
 				ctx.Stop()
 			}
 		}
