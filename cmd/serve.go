@@ -5,9 +5,10 @@ package cmd
 
 import (
 	"github.com/go-stomp/stomp/v3"
-	"github.com/michaelraskansky/nationalrail_to_kinesis/pkg/dts"
-	"github.com/michaelraskansky/nationalrail_to_kinesis/pkg/kinesis"
-	"github.com/michaelraskansky/nationalrail_to_kinesis/pkg/nrod"
+	"github.com/michaelraskansky/ntokin/pkg/dts"
+	"github.com/michaelraskansky/ntokin/pkg/health"
+	"github.com/michaelraskansky/ntokin/pkg/kinesis"
+	"github.com/michaelraskansky/ntokin/pkg/nrod"
 
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -31,6 +32,7 @@ var serveCmd = &cobra.Command{
 		kinesisStreamArn, _ := cmd.Flags().GetString("kinesis-stream-arn")
 		subscriptionNames, _ := cmd.Flags().GetStringArray("subscriptions")
 		region, _ := cmd.Flags().GetString("kinesis-region")
+		healthcheckPort, _ := cmd.Flags().GetInt32("healthcheck-port")
 
 		sugar.Infof("serve called with %v %v:%v", username, host, port)
 		ctx := &dts.Ctx{
@@ -46,7 +48,9 @@ var serveCmd = &cobra.Command{
 			Port:              port,
 			StreamARN:         kinesisStreamArn,
 			InjestChan:        make(chan *dts.ShardRecord),
+			HealthcheckPort:   healthcheckPort,
 		}
+		health.Start(ctx)
 		kinesis.Start(ctx)
 		nrod.Start(ctx)
 	},
@@ -73,6 +77,7 @@ func init() {
 	serveCmd.Flags().String("port", "61613", "STOMP Port")
 	serveCmd.Flags().String("kinesis-stream-arn", "", "the stream arn")
 	serveCmd.Flags().String("kinesis-region", "eu-west-1", "the stream region")
+	serveCmd.Flags().Int32("healthcheck-port", 8080, "the stream region")
 	serveCmd.Flags().StringArray("subscriptions", []string{
 		"darwin.pushport-v16",
 	}, "subscriptions")

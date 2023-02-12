@@ -8,7 +8,7 @@ VERSION=$(shell git branch --no-color --no-column --show-current)
 DIRTY=$(shell git diff-index --quiet HEAD -- || echo '-SNAPSHOT')
 GIT_REF=$(shell git rev-parse --short HEAD --)
 REVISION=$(GIT_REF)$(DIRTY)
-LD_FLAGS := "-X github.com/michaelraskansky/nationalrail_to_kinesis/pkg/version.Version=$(VERSION)-$(REVISION)"
+LD_FLAGS := "-X github.com/michaelraskansky/ntokin/pkg/version.Version=$(VERSION)-$(REVISION)"
 
 export REVISION
 

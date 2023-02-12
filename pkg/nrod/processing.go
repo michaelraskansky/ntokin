@@ -7,7 +7,7 @@ import (
 
 	"github.com/antchfx/xmlquery"
 	"github.com/go-stomp/stomp/v3"
-	"github.com/michaelraskansky/nationalrail_to_kinesis/pkg/dts"
+	"github.com/michaelraskansky/ntokin/pkg/dts"
 )
 
 func processMessages(ctx *dts.Ctx, subscription *stomp.Subscription) error {

@@ -12,6 +12,7 @@ type ShardRecord struct {
 	Records *[][]byte
 }
 type Ctx struct {
+	HealthcheckPort   int32
 	Region            string
 	Context           context.Context
 	KillSignal        chan int8

@@ -4,7 +4,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/kinesis"
-	"github.com/michaelraskansky/nationalrail_to_kinesis/pkg/dts"
+	"github.com/michaelraskansky/ntokin/pkg/dts"
 )
 
 type KinesisSync struct {

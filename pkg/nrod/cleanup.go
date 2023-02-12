@@ -4,7 +4,7 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/michaelraskansky/nationalrail_to_kinesis/pkg/dts"
+	"github.com/michaelraskansky/ntokin/pkg/dts"
 )
 
 func cleanUpOnInterrupt(ctx *dts.Ctx) {

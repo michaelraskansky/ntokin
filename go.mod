@@ -1,4 +1,4 @@
-module github.com/michaelraskansky/nationalrail_to_kinesis
+module github.com/michaelraskansky/ntokin
 
 go 1.20
 

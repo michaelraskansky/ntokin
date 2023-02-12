@@ -1,6 +1,6 @@
 package nrod
 
-import "github.com/michaelraskansky/nationalrail_to_kinesis/pkg/dts"
+import "github.com/michaelraskansky/ntokin/pkg/dts"
 
 func Start(ctx *dts.Ctx) {
 	cleanUpOnInterrupt(ctx)

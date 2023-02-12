@@ -2,9 +2,10 @@ package nrod
 
 import (
 	"fmt"
-	"github.com/michaelraskansky/nationalrail_to_kinesis/pkg/dts"
 	"net"
 	"time"
+
+	"github.com/michaelraskansky/ntokin/pkg/dts"
 
 	"github.com/go-stomp/stomp/v3"
 )
