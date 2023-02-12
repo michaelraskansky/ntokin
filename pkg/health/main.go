@@ -14,5 +14,6 @@ func healthcheck(w http.ResponseWriter, req *http.Request) {
 func Start(ctx *dts.Ctx) {
 	host := fmt.Sprintf("0.0.0.0:%v", ctx.HealthcheckPort)
 	http.HandleFunc("/healthcheck", healthcheck)
+	http.HandleFunc("/", healthcheck)
 	go func() { http.ListenAndServe(host, nil) }()
 }
