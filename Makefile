@@ -22,3 +22,7 @@ go_version:
 
 build: 
 	$(compile_bin)
+
+.PHONY: serve
+serve:
+	./tolkinctl serve --username $(USERNAME) --password $(PASSWORD) --subscriptions darwin.pushport-v16 

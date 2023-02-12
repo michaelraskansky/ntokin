@@ -6,18 +6,9 @@ import (
 	"fmt"
 
 	"github.com/antchfx/xmlquery"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/kinesis"
 	"github.com/go-stomp/stomp/v3"
 	"github.com/michaelraskansky/nationalrail_to_kinesis/pkg/dts"
 )
-
-func newKinesisClient() *kinesis.Kinesis {
-	mySession := session.Must(session.NewSession())
-	svc := kinesis.New(mySession, aws.NewConfig().WithRegion("eu-west-1"))
-	return svc
-}
 
 func processMessages(ctx *dts.Ctx, subscription *stomp.Subscription) error {
 	message, messageError := getMessage(subscription)

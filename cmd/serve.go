@@ -5,7 +5,9 @@ package cmd
 
 import (
 	"github.com/go-stomp/stomp/v3"
-	nrod "github.com/michaelraskansky/nationalrail_to_kinesis/pkg/nrod"
+	"github.com/michaelraskansky/nationalrail_to_kinesis/pkg/dts"
+	"github.com/michaelraskansky/nationalrail_to_kinesis/pkg/nrod"
+
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 )
@@ -28,7 +30,7 @@ var serveCmd = &cobra.Command{
 		subscriptionNames, _ := cmd.Flags().GetStringArray("subscriptions")
 
 		sugar.Infof("serve called with %v %v:%v", username, host, port)
-		ctx := &nrod.Ctx{
+		ctx := &dts.Ctx{
 			Log:               sugar,
 			SubscriptionNames: subscriptionNames,
 			Subscriptions:     make(map[string]*stomp.Subscription, len(subscriptionNames)),
